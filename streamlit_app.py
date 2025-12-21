@@ -1,15 +1,17 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import joblib
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="GeoVision – Rockfall Prediction", layout="wide")
 st.title("GeoVision – Rockfall Risk Prediction")
 st.caption("AI-powered rockfall risk assessment")
 
-# Load new model
+# Load trained model
 model = joblib.load("rockfall_model.pkl")
 
-# Input
+# Input: CSV or demo data
 uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
 use_sample = st.button("Use demo data")
 
@@ -23,7 +25,18 @@ else:
 if df is not None:
     features = ["slope_angle","rainfall_mm","vibration","pore_pressure","temperature_c"]
     X = df[features]
+
+    # Predict risk levels
     df["predicted_risk_level"] = model.predict(X)
+
+    # High-risk probability
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba(X)
+        high_index = list(model.classes_).index("High")
+        df["High_risk_prob"] = probs[:, high_index]
+
+    # Highlight extreme slope+rainfall combo
+    df["Critical"] = np.where((df["slope_angle"]>60) & (df["rainfall_mm"]>30), "Yes", "No")
 
     # Styling
     def color_risk(val):
@@ -33,22 +46,42 @@ if df is not None:
 
     styled_df = df.style.applymap(color_risk, subset=["predicted_risk_level"])
 
-    # Output
+    # Display Table
     st.subheader("📊 Prediction Results")
     st.dataframe(styled_df, use_container_width=True)
 
-    # Alerts
-    high_risk = df[df["predicted_risk_level"] == "High"]
-    if not high_risk.empty:
-        st.warning("🚨 High-risk slopes detected!")
-        st.dataframe(high_risk, use_container_width=True)
-
     # Summary
-    st.subheader("Summary")
+    st.subheader("Summary Metrics")
+    high_risk = df[df["predicted_risk_level"]=="High"]
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Slopes", len(df))
     col2.metric("High Risk Slopes", len(high_risk))
-    col3.metric("Risk Levels", ", ".join(df["predicted_risk_level"].value_counts().index))
+    col3.metric("Max High-Risk Probability", round(df["High_risk_prob"].max(),2) if "High_risk_prob" in df.columns else "-")
+
+    # Risk Distribution Chart
+    st.subheader("Predicted Risk Distribution")
+    risk_counts = df["predicted_risk_level"].value_counts()
+    fig, ax = plt.subplots()
+    ax.bar(risk_counts.index, risk_counts.values, color=["#22C55E","#EAB308","#EF4444"])
+    ax.set_ylabel("Number of Slopes")
+    st.pyplot(fig)
+
+    # Feature Importance
+    st.subheader("Feature Importance")
+    if hasattr(model, "feature_importances_"):
+        importances = model.feature_importances_
+        fig2, ax2 = plt.subplots()
+        ax2.barh(features, importances, color="skyblue")
+        ax2.set_xlabel("Importance")
+        st.pyplot(fig2)
+
+        # Download Predictions
+    st.download_button(
+        "Download Predictions CSV",
+        df.to_csv(index=False),
+        "rockfall_predictions.csv",
+        "text/csv"
+    )
 
 else:
     st.info("⬆️ Upload a CSV or click **Use demo data** to get started.")
