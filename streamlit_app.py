@@ -50,7 +50,7 @@ if df is not None:
     st.subheader("📊 Prediction Results")
     st.dataframe(styled_df, use_container_width=True)
 
-    # Summary
+    # Summary Metrics
     st.subheader("Summary Metrics")
     high_risk = df[df["predicted_risk_level"]=="High"]
     col1, col2, col3 = st.columns(3)
@@ -58,24 +58,29 @@ if df is not None:
     col2.metric("High Risk Slopes", len(high_risk))
     col3.metric("Max High-Risk Probability", round(df["High_risk_prob"].max(),2) if "High_risk_prob" in df.columns else "-")
 
-    # Risk Distribution Chart
-    st.subheader("Predicted Risk Distribution")
-    risk_counts = df["predicted_risk_level"].value_counts()
-    fig, ax = plt.subplots()
-    ax.bar(risk_counts.index, risk_counts.values, color=["#22C55E","#EAB308","#EF4444"])
-    ax.set_ylabel("Number of Slopes")
-    st.pyplot(fig)
+    # Charts side by side
+    st.subheader("Charts")
+    col1, col2 = st.columns(2)
 
-    # Feature Importance
-    st.subheader("Feature Importance")
-    if hasattr(model, "feature_importances_"):
-        importances = model.feature_importances_
-        fig2, ax2 = plt.subplots()
-        ax2.barh(features, importances, color="skyblue")
-        ax2.set_xlabel("Importance")
-        st.pyplot(fig2)
+    with col1:
+        st.subheader("Predicted Risk Distribution")
+        fig, ax = plt.subplots(figsize=(4,3))
+        risk_counts = df["predicted_risk_level"].value_counts()
+        ax.bar(risk_counts.index, risk_counts.values, color=["#22C55E","#EAB308","#EF4444"])
+        ax.set_ylabel("Number of Slopes")
+        st.pyplot(fig)
 
-        # Download Predictions
+    with col2:
+        st.subheader("Feature Importance")
+        if hasattr(model, "feature_importances_"):
+            importances = model.feature_importances_
+            fig2, ax2 = plt.subplots(figsize=(4,3))
+            ax2.barh(features, importances, color="skyblue")
+            ax2.set_xlabel("Importance")
+            st.pyplot(fig2)
+
+    
+    # Download Predictions
     st.download_button(
         "Download Predictions CSV",
         df.to_csv(index=False),
