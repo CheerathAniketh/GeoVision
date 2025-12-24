@@ -29,16 +29,17 @@ if df is not None:
     # Predict risk levels
     df["predicted_risk_level"] = model.predict(X)
 
-    # High-risk probability
-    if hasattr(model, "predict_proba"):
-        probs = model.predict_proba(X)
-        high_index = list(model.classes_).index("High")
-        df["High_risk_prob"] = probs[:, high_index]
-
     # Highlight extreme slope+rainfall combo
     df["Critical"] = np.where((df["slope_angle"]>60) & (df["rainfall_mm"]>30), "Yes", "No")
 
-    # Styling
+    # High-risk subset
+    high_risk = df[df["predicted_risk_level"]=="High"]
+
+    # Alert message in app
+    if len(high_risk) > 0:
+        st.warning(f"⚠️ {len(high_risk)} slopes detected as HIGH RISK!")
+
+    # Styling: only color the predicted_risk_level column
     def color_risk(val):
         if val == "Low": return "background-color: #22C55E; color: black"
         elif val == "Medium": return "background-color: #EAB308; color: black"
@@ -46,17 +47,21 @@ if df is not None:
 
     styled_df = df.style.applymap(color_risk, subset=["predicted_risk_level"])
 
-    # Display Table
+    # Display Main Table
     st.subheader("📊 Prediction Results")
     st.dataframe(styled_df, use_container_width=True)
 
+    # Display High-Risk Table
+    if len(high_risk) > 0:
+        st.subheader("⚠️ High-Risk Slopes")
+        st.dataframe(high_risk, use_container_width=True)
+
     # Summary Metrics
     st.subheader("Summary Metrics")
-    high_risk = df[df["predicted_risk_level"]=="High"]
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Slopes", len(df))
     col2.metric("High Risk Slopes", len(high_risk))
-    col3.metric("Max High-Risk Probability", round(df["High_risk_prob"].max(),2) if "High_risk_prob" in df.columns else "-")
+    col3.metric("Max High-Risk Probability", round(df.get("High_risk_prob", pd.Series([0])).max(),2))
 
     # Charts side by side
     st.subheader("Charts")
@@ -79,7 +84,6 @@ if df is not None:
             ax2.set_xlabel("Importance")
             st.pyplot(fig2)
 
-    
     # Download Predictions
     st.download_button(
         "Download Predictions CSV",
