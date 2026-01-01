@@ -1,4 +1,4 @@
-# AI-Based Rockfall Prediction System 
+# ML-Based Rockfall Prediction System
 
 A machine learning web app that predicts potential rockfall risk in open-pit mining environments, helping improve safety and preparedness.
 
