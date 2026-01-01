@@ -4,9 +4,9 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 
-st.set_page_config(page_title="GeoVision – Rockfall Prediction", layout="wide")
-st.title("GeoVision – Rockfall Risk Prediction")
-st.caption("AI-powered rockfall risk assessment")
+st.set_page_config(page_title="GeoVision  Rockfall Prediction", layout="wide")
+st.title("GeoVision  Rockfall Risk Prediction")
+st.caption("AI powered rockfall risk assessment")
 
 # Load trained model
 model = joblib.load("rockfall_model.pkl")
@@ -14,6 +14,9 @@ model = joblib.load("rockfall_model.pkl")
 # Input: CSV or demo data
 uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
 use_sample = st.button("Use demo data")
+
+if use_sample:
+    st.caption("*Demo dataset for quick exploration; real world CSVs can be plugged in seamlessly..*")
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
@@ -29,17 +32,15 @@ if df is not None:
     # Predict risk levels
     df["predicted_risk_level"] = model.predict(X)
 
-    # Highlight extreme slope+rainfall combo
-    df["Critical"] = np.where((df["slope_angle"]>60) & (df["rainfall_mm"]>30), "Yes", "No")
-
-    # High-risk subset
+    # High risk subset, sorted
     high_risk = df[df["predicted_risk_level"]=="High"]
+    high_risk = high_risk.sort_values(by=["slope_angle","rainfall_mm"], ascending=False)
 
     # Alert message in app
     if len(high_risk) > 0:
         st.warning(f"⚠️ {len(high_risk)} slopes detected as HIGH RISK!")
 
-    # Styling: only color the predicted_risk_level column
+    # Styling: predicted_risk_level column
     def color_risk(val):
         if val == "Low": return "background-color: #22C55E; color: black"
         elif val == "Medium": return "background-color: #EAB308; color: black"
@@ -51,17 +52,16 @@ if df is not None:
     st.subheader("📊 Prediction Results")
     st.dataframe(styled_df, use_container_width=True)
 
-    # Display High-Risk Table
+    # Display High Risk Table
     if len(high_risk) > 0:
-        st.subheader("⚠️ High-Risk Slopes")
+        st.subheader("⚠️ High Risk Slopes")
         st.dataframe(high_risk, use_container_width=True)
 
     # Summary Metrics
     st.subheader("Summary Metrics")
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     col1.metric("Total Slopes", len(df))
     col2.metric("High Risk Slopes", len(high_risk))
-    col3.metric("Max High-Risk Probability", round(df.get("High_risk_prob", pd.Series([0])).max(),2))
 
     # Charts side by side
     st.subheader("Charts")
