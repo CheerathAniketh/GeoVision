@@ -35,7 +35,7 @@ if df is not None:
     high_risk = df[df["predicted_risk_level"]=="High"]
     high_risk = high_risk.sort_values(by=["slope_angle","rainfall_mm"], ascending=False)
 
-    # Alert message in app
+    # Alert message
     if len(high_risk) > 0:
         st.warning(f"⚠️ {len(high_risk)} slopes detected as HIGH RISK!")
 
