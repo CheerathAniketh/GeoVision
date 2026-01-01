@@ -49,7 +49,7 @@ if df is not None:
     styled_df = df.style.applymap(color_risk, subset=["predicted_risk_level"])
 
     # Display Main Table
-    st.subheader("📊 Prediction Results")
+    st.subheader("Prediction Results")
     st.dataframe(styled_df, use_container_width=True)
 
     # Display High Risk Table
@@ -93,4 +93,4 @@ if df is not None:
     )
 
 else:
-    st.info("⬆️ Upload a CSV or click **Use demo data** to get started.")
+    st.info("Upload a CSV or click **Use demo data** to get started.")
