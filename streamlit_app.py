@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="GeoVision  Rockfall Prediction", layout="wide")
 st.title("GeoVision  Rockfall Risk Prediction")
-st.caption("AI powered rockfall risk assessment")
+st.caption("Trained ML-mode for rockfall risk assessment")
 
 # Load trained model
 model = joblib.load("rockfall_model.pkl")
@@ -15,13 +15,12 @@ model = joblib.load("rockfall_model.pkl")
 uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
 use_sample = st.button("Use demo data")
 
-if use_sample:
-    st.caption("*Demo dataset for quick exploration; real world CSVs can be plugged in seamlessly..*")
+
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
 elif use_sample:
-    df = pd.read_csv("synthetic_rockfall_1000.csv")
+    df = pd.read_csv("demo_data.csv")
 else:
     df = None
 
