@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 import matplotlib.pyplot as plt
 
-# ---------------- CONFIG ----------------
+# Configuration
 st.set_page_config(
     page_title="GeoVision Rockfall Prediction",
     layout="wide"
@@ -12,7 +12,7 @@ st.set_page_config(
 st.title("GeoVision – Rockfall Risk Prediction")
 st.caption("ML-powered risk assessment for open-pit mining")
 
-# ---------------- CONSTANTS ----------------
+# Constants
 REQUIRED_COLS = [
     "slope_angle",
     "rainfall_mm",
@@ -21,10 +21,10 @@ REQUIRED_COLS = [
     "temperature_c"
 ]
 
-# ---------------- MODEL LOAD ----------------
+# Model loading
 model = joblib.load("rockfall_model.pkl")
 
-# ---------------- USER INPUT ----------------
+# User Input
 st.info(
     "**CSV format required**:\n"
     "slope_angle, rainfall_mm, vibration, pore_pressure, temperature_c\n\n"
@@ -33,7 +33,7 @@ st.info(
 uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
 use_sample = st.button("Use demo data")
 
-# ---------------- DATA LOAD ----------------
+# Loading Data
 df = None
 
 if uploaded_file:
@@ -42,9 +42,9 @@ if uploaded_file:
     missing_cols = [col for col in REQUIRED_COLS if col not in df.columns]
     if missing_cols:
         st.error(
-            "❌ Invalid CSV format\n\n"
+            "Invalid CSV format\n\n"
             f"Missing columns: {', '.join(missing_cols)}\n\n"
-            "📌 Expected columns:\n"
+            "Expected columns:\n"
             "slope_angle, rainfall_mm, vibration, pore_pressure, temperature_c"
         )
         st.stop()
@@ -52,7 +52,7 @@ if uploaded_file:
 elif use_sample:
     df = pd.read_csv("demo_data.csv")
 
-# ---------------- MAIN LOGIC ----------------
+# Core Logic
 if df is not None:
 
     X = df[REQUIRED_COLS]
@@ -66,7 +66,7 @@ if df is not None:
     if len(high_risk) > 0:
         st.warning(f"⚠️ {len(high_risk)} slopes detected as **HIGH RISK**")
 
-    # ---------------- TABLE STYLING ----------------
+    # Table Styling
     def color_risk(val):
         if val == "Low":
             return "background-color: #22C55E; color: black"
@@ -86,13 +86,13 @@ if df is not None:
         st.subheader("⚠️ High Risk Slopes")
         st.dataframe(high_risk, use_container_width=True)
 
-    # ---------------- METRICS ----------------
+    # Metrics
     st.subheader("Summary Metrics")
     col1, col2 = st.columns(2)
     col1.metric("Total Slopes", len(df))
     col2.metric("High Risk Slopes", len(high_risk))
 
-    # ---------------- CHARTS ----------------
+    # Charts
     st.subheader("Visual Insights")
     col1, col2 = st.columns(2)
 
@@ -118,13 +118,13 @@ if df is not None:
         else:
             st.info("Feature importance not supported by this model.")
 
-    # DOWNLOAD 
+    # Download button
     st.download_button(
-        "⬇️ Download Predictions (CSV)",
+        "Download Predictions (CSV)",
         df.to_csv(index=False),
         "rockfall_predictions.csv",
         "text/csv"
     )
 
 else:
-    st.info("Upload a CSV file or click **Use demo data** to begin 👆")
+    st.info("Upload a CSV file or click **Use demo data** to begin ")
