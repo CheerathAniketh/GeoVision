@@ -12,7 +12,7 @@ Rockfalls are a major safety and operational risk in open-pit mines. Early predi
 
 ## Solution
 
-This project uses a **Random Forest Regression** model to analyze multiple input parameters and predict rockfall risk.  
+This project uses a **Random Forest Classifier** model to analyze multiple input parameters and predict rockfall risk.  
 Predictions are displayed through an **interactive Streamlit dashboard** for quick and easy decision support.
 
 **Check it out live:** [GeoVision360](https://geovision360.streamlit.app/)
