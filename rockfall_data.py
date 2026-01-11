@@ -29,5 +29,5 @@ for _ in range(n_synthetic):
 df_synthetic = pd.DataFrame(synthetic_rows)
 
 # Save to CSV
-df_synthetic.to_csv("synthetic_rockfall_1000.csv", index=False)
-print("synthetic_rockfall_1000.csv created with", len(df_synthetic), "rows")
+df_synthetic.to_csv("demo_data.csv", index=False)
+print("demo_data.csv created with", len(df_synthetic), "rows")
