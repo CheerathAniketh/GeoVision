@@ -70,3 +70,7 @@ streamlit run streamlit_app.py
 ## Disclaimer
 
 This project is a hackathon prototype and should not be used for real-world safety decisions.
+
+---
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1dXPQehCu7aFWQ1jgjMHWFC6x-GLfYg3j?usp=sharing)
