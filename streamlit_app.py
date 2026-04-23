@@ -75,7 +75,7 @@ if df is not None:
         else:
             return "background-color: #EF4444; color: black"
 
-    styled_df = df.style.applymap(
+    styled_df = df.style.map(
         color_risk, subset=["predicted_risk_level"]
     )
 
